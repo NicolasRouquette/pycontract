@@ -5,7 +5,7 @@ import copy
 import inspect
 from abc import ABC
 from dataclasses import dataclass
-from typing import List, Set, Callable, Optional, Dict
+from typing import List, Set, Callable, Optional, Dict, Union
 import pyfiglet
 
 
@@ -213,7 +213,7 @@ class State:
         __init__ does not need to be called, but its definition removes some warnings
         in PyCharm.
         """
-        self.monitor = None
+        self.monitor: Optional[Monitor] = None
         """
         Data specific to a particular form of analysis can be stored here and printed
         out when the `end()` method of the monitor containing the state is called.
@@ -377,7 +377,6 @@ class AlwaysState(State):
             return [self]
         else:
             return mk_state_vector(result) + [self]
-
 
 class ErrorState(State):
     """
