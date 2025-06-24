@@ -21,6 +21,11 @@
 * Created (and later removed) top-level `CMakeLists.txt` while investigating colcon graph visibility (assistant then user deleted).
 
 ### Build status
+* Converted **src/examples_ros2** from `ament_python` to `ament_cmake`:
+  * Added `CMakeLists.txt` to generate custom messages and install scripts.
+  * Updated `package.xml` to use `ament_cmake`, add `rosidl_default_generators/runtime` deps.
+  * Removed need for `setup.py`; build error fixed.
+* Added `setup.py` and `resource/pycontract_examples` to **src/examples** so that package `pycontract_examples` builds correctly with `ament_python`.
 * `colcon graph` now shows three packages: `pycontract`, `pycontract_examples`, `examples_ros2`.
 * Added `resource/pycontract` file required by ament to register the package, fixing the previous colcon build error.
 * Re-run `colcon build` should now succeed for all packages.
