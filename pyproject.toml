@@ -2,7 +2,10 @@
 name = "pycontract"
 version = "0.1.0"
 description = "Runtime verification and contract monitoring"
-authors = [{ name = "Your Name", email = "your@email.com" }]
+authors = [
+    { name = "Klaus Havelund", email = "havelund@gmail.com" },
+    { name = "Nicolas Rouquette", email = "nicolas.rouquette@me.com" }
+]
 dependencies = [
     "pyfiglet",
     "pandas",
@@ -11,8 +14,9 @@ dependencies = [
 
 [project.optional-dependencies]
 ros2 = [
-    "rclpy",
-    "ros2cli"
+    "# These ROS2 packages should be installed via ROS2's package management system",
+    "# and not through pip. They are listed here for documentation purposes only.",
+    "# Install ROS2 packages using: sudo apt install ros-<ros2-distro>-rclpy ros-<ros2-distro>-ros2cli"
 ]
 
 [build-system]
