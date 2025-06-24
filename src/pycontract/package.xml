@@ -10,11 +10,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>python3-setuptools</buildtool_depend>
 
-  <build_depend>rclpy</build_depend>
-  <build_depend>ros2cli</build_depend>
 
-  <exec_depend>rclpy</exec_depend>
-  <exec_depend>ros2cli</exec_depend>
 
   <test_depend>ament_cmake_pytest</test_depend>
   <test_depend>ament_lint_auto</test_depend>

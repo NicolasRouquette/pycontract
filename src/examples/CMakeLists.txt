@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(pycontract)
+project(pycontract_examples)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -9,7 +9,7 @@ endif()
 # Find Python
 find_package(Python3 COMPONENTS Interpreter Development)
 
-# Add subdirectories
-add_subdirectory(src/pycontract)
-add_subdirectory(src/examples)
-add_subdirectory(src/examples_ros2)
+# Install examples
+install(DIRECTORY .
+  DESTINATION share/${PROJECT_NAME}
+  PATTERN "*.py")
