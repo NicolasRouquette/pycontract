@@ -1,22 +1,23 @@
 """
 PyContract
 """
+from __future__ import annotations
+import sys
+from dataclasses import dataclass
 import copy
 import inspect
 from abc import ABC
-from dataclasses import dataclass
-from typing import List, Set, Callable, Optional, Dict, Union
-import pyfiglet
+from typing import List, Set, Dict, Callable, Optional, Any, Tuple, Iterable, Union
 
 
-def print_banner(text: str):
-    '''
-    Prints a banner as ASCII art in slant format.
-    See: https://github.com/pwaller/pyfiglet.
-    :param text: the text to be printed as ASCII art.
-    '''
-    ascii_banner = pyfiglet.figlet_format(text, font='slant')
-    print(ascii_banner)
+# ANSI color codes
+COLOR_RED = '\033[91m'
+COLOR_MAGENTA = '\033[95m'  # Magenta
+COLOR_GREEN = '\033[92m'
+COLOR_RESET = '\033[0m'
+
+
+
 
 
 def data(cls):
@@ -310,6 +311,18 @@ class State:
             return [self]
         else:
             return mk_state_vector(result)
+
+    def __or__(self, other: "State") -> "OrState":
+        """
+        Creates an OrState from two states using the | operator.
+        """
+        return OrState(self, other)
+
+    def __and__(self, other: "State") -> "AndState":
+        """
+        Creates an AndState from two states using the & operator.
+        """
+        return AndState(self, other)
 
 
 class HotState(State):
@@ -621,9 +634,10 @@ class Message:
     with calls of the `error` method or information is generated with
     with calls of the `info` method.
     """
-    def __init__(self, text: str, data: object):
+    def __init__(self, text: str, data: object, category: str = 'info'):
         self.text = text
         self.data = data
+        self.category = category
 
     def __str__(self):
         return self.text
@@ -804,6 +818,17 @@ class Monitor:
         else:
             return None
 
+    def _check_hot_states(self, states_to_check: Iterable[State]):
+        """
+        Recursively checks for hot states within a collection of states,
+        descending into AndState and OrState compositions.
+        """
+        for state in states_to_check:
+            if isinstance(state, (AndState, OrState)):
+                self._check_hot_states(state.states)
+            elif isinstance(state, (HotState, HotNextState)):
+                self.report_end_error(f'terminates in hot state {state}')
+
     def end(self):
         """
         Terminates monitoring for the monitor. This includes looking for hot states
@@ -818,9 +843,7 @@ class Monitor:
         for monitor in self.monitors:
             monitor.end()
         print_frame("+", f'Terminating monitor {self.get_monitor_name()}')
-        for state in self.get_all_states():
-            if isinstance(state, HotState) or isinstance(state, HotNextState):
-                self.report_end_error(f'terminates in hot state {state}')
+        self._check_hot_states(self.get_all_states())
         if self.is_top_monitor and self.option_print_summary:
             self.print_summary()
 
@@ -839,17 +862,30 @@ class Monitor:
         monitor_name = self.__class__.__name__
         suffix = " states:"
         bar_length = len(monitor_name) + len(suffix)
-        result = f'{"-" * bar_length}\n'
-        result += monitor_name + suffix + "\n"
-        for state in self.states:
-            result += f'{state}\n'
+        
+        header = f'{"-" * bar_length}\n{monitor_name}{suffix}\n'
+        
+        state_lines = self._pretty_format_states(list(self.states))
+        
+        indexed_lines = ""
         for (index, states) in self.states_indexed.items():
             if states:
-                result += f'index {index}:\n'
-                for state in states:
-                    result += f'  {state}\n'
-        result += f'{"-" * bar_length}\n'
-        return result
+                indexed_lines += f'index {index}:\n'
+                indexed_lines += self._pretty_format_states(list(states), indent="  ") + "\n"
+
+        return f'{header}{state_lines}\n{indexed_lines.rstrip()}\n{"-" * bar_length}'
+
+    def _pretty_format_states(self, states: List[State], indent: str = "") -> str:
+        result = ""
+        for state in states:
+            hot_marker = " (HOT)" if isinstance(state, HotState) else ""
+            result += f"{indent}{state}{hot_marker}\n"
+            
+            if isinstance(state, (AndState, OrState)):
+                result += self._pretty_format_states(state.states, indent + "  ") + "\n"
+            elif isinstance(state, NotState):
+                result += self._pretty_format_states([state.inner], indent + "  ") + "\n"
+        return result.rstrip()
 
     def add_state_to_state_vector(self, states: Set[State], state: State):
         """
@@ -889,16 +925,17 @@ class Monitor:
         self.messages.append(Message(text, info_state.data))
         print(text)
 
-    def report_end_error(self, text: str):
+    def report_end_error(self, text: str, obj: object = None):
         """
         Reports a hot state (`HotState`) encountered in the state vector of the monitor
         at the end of monitoring, when the `end()` method is called.
-        :param text: error message, identifying the hot state.
+        :param text: message.
         """
-        message = f'*** error at end in {self.get_monitor_name()}:\n'
+        message = f'[HOT STATE] *** error at end in {self.get_monitor_name()}:\n'
         message += f'    {text}'
-        self.messages.append(Message(message, None))
-        print(message)
+        self.messages.append(Message(message, obj, category='hot_state_termination'))
+        print(f"{COLOR_MAGENTA}{message}{COLOR_RESET}")
+        sys.stdout.flush()
 
     def report_error(self, text: str, obj: object = None):
         """
@@ -906,11 +943,12 @@ class Monitor:
         :param text: error message.
         :param obj: a data object.
         """
-        message = f'*** error in {self.get_monitor_name()}:\n'
+        message = f'[VIOLATION] *** error in {self.get_monitor_name()}:\n'
         message += f'    {text}'
-        self.messages.append(Message(message, obj))
-        print(message)
-
+        self.messages.append(Message(message, obj, category='safety_violation'))
+        print(f"{COLOR_RED}{message}{COLOR_RESET}")
+        sys.stdout.flush()
+        
     def report_information(self, text: str, obj: object = None):
         """
         Reports a message. Usually called by user when not using state machines.
@@ -1012,11 +1050,111 @@ class Monitor:
         print("Analysis result:")
         print("================")
         print()
-        messages = self.get_all_message_texts()
+        messages = self.get_all_messages()
         if messages:
             print(f'{len(messages)} messages!')
             for message in messages:
                 print()
-                print(message)
+                if message.category == 'hot_state_termination':
+                    print(f"{COLOR_MAGENTA}{message.text}{COLOR_RESET}")
+                elif message.category == 'safety_violation':
+                    print(f"{COLOR_RED}{message.text}{COLOR_RESET}")
+                else:
+                    print(message.text)
+                sys.stdout.flush()
         else:
-            print('No messages!')
+            print(f"{COLOR_GREEN}[OK] No messages!{COLOR_RESET}")
+            sys.stdout.flush()
+
+class AndState(State):
+    """
+    A state that succeeds only if all of its sub-states succeed.
+    """
+
+    def __init__(self, *states: State):
+        super().__init__()
+        self.states = states
+
+    def eval(self, event: Event) -> List[State]:
+        """
+        Evaluates the AndState on an event. Returns the list of states that succeed.
+        :param event: the event on which the state is evaluated.
+        :return: the list of resulting states, the target states of the transition.
+        """
+        results = []
+        for state in self.states:
+            result = state.eval(event)
+            if any(isinstance(r, ErrorState) for r in result):
+                return [error("AndState failed.")]
+            results.extend(r for r in result if not isinstance(r, OkState))
+        if results:
+            return results
+        else:
+            return [ok]
+
+class OrState(State):
+    """
+    A state that succeeds if at least one of its sub-states succeeds.
+    """
+
+    def __init__(self, *states: State):
+        super().__init__()
+        self.states = states
+
+    def eval(self, event: Event) -> List[State]:
+        """
+        Evaluates the OrState on an event. Returns [ok] if any sub-state is OkState.
+        :param event: the event on which the state is evaluated.
+        :return: the list of resulting states, the target states of the transition.
+        """
+        results = []
+        for state in self.states:
+            result = state.eval(event)
+            if any(isinstance(r, ErrorState) for r in result):
+                continue
+            if all(isinstance(r, OkState) for r in result):
+                return [ok]
+            trimmed_result = [r for r in result if not isinstance(r, OkState)]
+            if len(trimmed_result) > 1:
+                results.append(AndState(*trimmed_result))
+            elif len(trimmed_result) == 1:
+                results.append(trimmed_result[0])
+            else:
+                assert False, f'eval function returned empty list'
+        if len(results) > 1:
+            return [OrState(*results)]
+        elif len(results) == 1:
+            return [results[0]]
+        else:
+            return [error("OrState failed.")]
+
+
+class NotState(State):
+    """
+    A state that negates the behavior of its inner state.
+    It returns an error if the inner state would return ok,
+    and returns ok if the inner state would return an error.
+    """
+
+    def __init__(self, inner: State):
+        super().__init__()
+        self.inner = inner
+
+    def eval(self, event: Event) -> List[State]:
+        """
+        Evaluates the NotState on an event. Negates the behavior of its inner state
+        based on the collective result of the inner state's evaluation.
+        
+        :param event: the event on which the state is evaluated.
+        :return: the list of resulting states, with negated behavior.
+        """
+        result = self.inner.eval(event)
+        if any(isinstance(r, ErrorState) for r in result):
+            return [ok]
+        remaining_states = [r for r in result if not isinstance(r, OkState)]
+        if not remaining_states:
+            return [error("NotState: inner state succeeded where it should have failed")]
+        if len(remaining_states) == 1:
+            return [NotState(remaining_states[0])]
+        else:
+            return [NotState(AndState(*remaining_states))]

@@ -1,6 +1,6 @@
 import os
 
-from pycontract_core import *
+from .pycontract_core import *
 import ast
 from enum import Enum
 

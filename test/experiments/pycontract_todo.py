@@ -206,6 +206,7 @@ class AndState(StateExpr):
         else:
             return AndState(next_options)
 
+# DONE
 class NotState(StateExpr):
     def __init__(self, inner: StateExpr):
         self.inner = inner
