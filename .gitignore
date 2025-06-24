@@ -2,5 +2,7 @@ logs
 .DS_Store
 test/.DS_Store
 .idea/
+.venv
 __pycache__/
+*.egg-info
 test/test-jpl/

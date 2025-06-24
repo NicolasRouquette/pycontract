@@ -9,6 +9,12 @@ dependencies = [
     "matplotlib"
 ]
 
+[project.optional-dependencies]
+ros2 = [
+    "rclpy",
+    "ros2cli"
+]
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
