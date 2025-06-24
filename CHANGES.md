@@ -22,4 +22,5 @@
 
 ### Build status
 * `colcon graph` now shows three packages: `pycontract`, `pycontract_examples`, `examples_ros2`.
-* Build currently fails for `pycontract` until new ament_python configuration is recognised; next step is to re-run `colcon build` after these changes.
+* Added `resource/pycontract` file required by ament to register the package, fixing the previous colcon build error.
+* Re-run `colcon build` should now succeed for all packages.
