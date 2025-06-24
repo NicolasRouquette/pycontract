@@ -1,5 +1,8 @@
 logs
 .DS_Store
+build
+install
+log
 test/.DS_Store
 .idea/
 .venv
