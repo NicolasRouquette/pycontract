@@ -4,7 +4,6 @@ project(examples_ros2)
 find_package(ament_cmake REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(pycontract REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 # Message files

@@ -22,7 +22,7 @@
 
 ### Build status
 * Converted **src/examples_ros2** from `ament_python` to `ament_cmake`:
-  * Added `CMakeLists.txt` to generate custom messages and install scripts.
+  * Added `CMakeLists.txt` to generate custom messages and install scripts (removed unnecessary `find_package(pycontract)`).
   * Updated `package.xml` to use `ament_cmake`, add `rosidl_default_generators/runtime` deps.
   * Removed need for `setup.py`; build error fixed.
 * Added `setup.py` and `resource/pycontract_examples` to **src/examples** so that package `pycontract_examples` builds correctly with `ament_python`.
