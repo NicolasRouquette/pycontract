@@ -108,8 +108,8 @@ class Test2(test.utest.Test):
         m.verify(trace)
         errors_expected = [
             '*** error transition in AcquireRelease:\n    state Acquired(1, 100)\n    event 3 Acquire(task=2, lock=100)\n    P100 acquired again',
-            '*** error at end in AcquireRelease:\n    terminates in hot state Acquired(1, 200)',
-            '*** error at end in AcquireRelease:\n    terminates in hot state Acquired(2, 300)']
+            '[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state Acquired(1, 200)',
+            '[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state Acquired(2, 300)']
         errors_actual = m.get_all_message_texts()
         self.assert_equal(errors_expected, errors_actual)
 
