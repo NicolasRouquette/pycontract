@@ -40,28 +40,27 @@ The above will result in the following interactions:
 sequenceDiagram
     autonumber
     participant ScenarioPublisher
-    participant ROS2_RunMonitor
-    participant ROS2_Middleware as ROS 2 Topics
+    participant Topics
+    participant RunMonitor
 
     %% step 0
-    ScenarioPublisher->>ROS2_Middleware: publish A(x=42) on /event_a
-    ROS2_Middleware->>ROS2_RunMonitor: A(x=42)
-    ROS2_RunMonitor-->>ROS2_RunMonitor: process A
+    ScenarioPublisher ->> Topics: A(x=42)
+    Topics ->> RunMonitor: A(x=42)
+    RunMonitor -->> RunMonitor: process A
 
     %% step 1
-    ScenarioPublisher->>ROS2_Middleware: publish B(x=42) on /event_b
-    ROS2_Middleware->>ROS2_RunMonitor: B(x=42)
-    ROS2_RunMonitor-->>ROS2_RunMonitor: process B
+    ScenarioPublisher ->> Topics: B(x=42)
+    Topics ->> RunMonitor: B(x=42)
+    RunMonitor -->> RunMonitor: process B
 
     %% step 2
-    ScenarioPublisher->>ROS2_Middleware: publish C(x=42) on /event_c
-    ROS2_Middleware->>ROS2_RunMonitor: C(x=42)
-    ROS2_RunMonitor-->>ROS2_RunMonitor: process C
+    ScenarioPublisher ->> Topics: C(x=42)
+    Topics ->> RunMonitor: C(x=42)
+    RunMonitor -->> RunMonitor: process C
 
-    %% step 3 – terminate
-    ScenarioPublisher->>ROS2_Middleware: publish End() on /end
-    ROS2_Middleware->>ROS2_RunMonitor: End()
-    ROS2_RunMonitor-->>ROS2_RunMonitor: monitor.end(); rclpy.shutdown()
-    ROS2_RunMonitor-->>ScenarioPublisher: node exits
-    ScenarioPublisher-->>ScenarioPublisher: finished cleanly
-`
+    %% step 3 (terminate)
+    ScenarioPublisher ->> Topics: End()
+    Topics ->> RunMonitor: End()
+    RunMonitor -->> RunMonitor: monitor.end()
+    RunMonitor -->> RunMonitor: rclpy.shutdown()
+```
