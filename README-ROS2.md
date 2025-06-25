@@ -28,44 +28,40 @@ source install/setup.bash
 
 This repository provides example ROS2 nodes for testing and monitoring contract-based systems using pycontract.
 
-#### 1. Start the ROS 2 Core
+#### run_monitor (ROS2 equivalent of [examples/run_monitor.py](./examples/run_monitor.py))
 
-In a new terminal:
-```bash
-ros2 daemon start
+```shell
+ros2 launch examples_ros2 test_monitor.launch.py
 ```
 
-#### 2. Run the Example Nodes
+The above will result in the following interactions:
 
-Open a new terminal for each node (after sourcing your workspace):
+```mermaid
+sequenceDiagram
+    autonumber
+    participant ScenarioPublisher
+    participant ROS2_RunMonitor
+    participant ROS2_Middleware as ROS 2 Topics
 
-- **Command Publisher**
-  
-  Publishes commands to the system:
-  ```bash
-  ros2 run examples_ros2 command_publisher.py
-  ```
+    %% step 0
+    ScenarioPublisher->>ROS2_Middleware: publish A(x=42) on /event_a
+    ROS2_Middleware->>ROS2_RunMonitor: A(x=42)
+    ROS2_RunMonitor-->>ROS2_RunMonitor: process A
 
-- **Status Publisher**
-  
-  Publishes status updates:
-  ```bash
-  ros2 run examples_ros2 status_publisher.py
-  ```
+    %% step 1
+    ScenarioPublisher->>ROS2_Middleware: publish B(x=42) on /event_b
+    ROS2_Middleware->>ROS2_RunMonitor: B(x=42)
+    ROS2_RunMonitor-->>ROS2_RunMonitor: process B
 
-- **ROS2 Monitor**
-  
-  Monitors contract properties and system status:
-  ```bash
-  ros2 run examples_ros2 ros2_monitor.py
-  ```
+    %% step 2
+    ScenarioPublisher->>ROS2_Middleware: publish C(x=42) on /event_c
+    ROS2_Middleware->>ROS2_RunMonitor: C(x=42)
+    ROS2_RunMonitor-->>ROS2_RunMonitor: process C
 
-#### 3. Visualize or Inspect Topics
-
-You can inspect published topics using:
-```bash
-ros2 topic list
-ros2 topic echo /<topic_name>
-```
-
-Make sure to open a new terminal and source your workspace (`source install/setup.bash`) before running each node.
+    %% step 3 – terminate
+    ScenarioPublisher->>ROS2_Middleware: publish End() on /end
+    ROS2_Middleware->>ROS2_RunMonitor: End()
+    ROS2_RunMonitor-->>ROS2_RunMonitor: monitor.end(); rclpy.shutdown()
+    ROS2_RunMonitor-->>ScenarioPublisher: node exits
+    ScenarioPublisher-->>ScenarioPublisher: finished cleanly
+`
