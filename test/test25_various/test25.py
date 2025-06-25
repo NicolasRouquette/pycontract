@@ -108,8 +108,8 @@ class TestVarious(test.utest.Test):
         messages = m.get_all_message_texts()
         self.assertEqual(len(messages), 2)
         message_set = set(messages)
-        self.assertIn("*** error at end in OrMonitor:\n    terminates in hot state Expect_B_NotD_C(1)", message_set)
-        self.assertIn("*** error at end in OrMonitor:\n    terminates in hot state Expect_NotF_E(1)", message_set)
+        self.assertIn("[HOT STATE] *** error at end in OrMonitor:\n    terminates in hot state Expect_B_NotD_C(1)", message_set)
+        self.assertIn("[HOT STATE] *** error at end in OrMonitor:\n    terminates in hot state Expect_NotF_E(1)", message_set)
 
 
 # Events for NotState test

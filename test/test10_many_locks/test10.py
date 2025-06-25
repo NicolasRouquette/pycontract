@@ -106,18 +106,18 @@ class Test2(test.utest.Test):
         print(f'Execution time: {datetime.now() - begin_time}')
         csv_reader.close()
         errors_expected = [
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_408')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_27')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_76')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_149')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_469')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_38')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_2')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_417')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_39')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_403')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_375')",
-         "*** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_43')"]
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_408')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_27')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_76')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_149')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_469')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_38')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_2')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_417')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_39')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_403')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_375')",
+         "[HOT STATE] *** error at end in AcquireRelease:\n    terminates in hot state DoRelease('LOCK_43')"]
 
         errors_actual = m.get_all_message_texts()
         print(errors_actual)

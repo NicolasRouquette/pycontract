@@ -318,12 +318,31 @@ class State:
         """
         return OrState(self, other)
 
+    def __rshift__(self, other: 'State') -> 'Sequence':
+        return Sequence(self, other)
+
     def __and__(self, other: "State") -> "AndState":
         """
         Creates an AndState from two states using the & operator.
         """
         return AndState(self, other)
 
+    def ensure(self, b: bool, msg: str = 'Assertion violation') -> Union[OkState, ErrorState]:
+        """
+        A helper method to easily return an OkState or an ErrorState based on a condition.
+        This is useful for checking assertions within a state transition.
+        """
+        if b:
+            return ok
+        else:
+            return error(msg)
+
+    def ok_message(self, msg: str) -> OkState:
+        """
+        A helper method to report a success message and return an OkState.
+        """
+        self.monitor.report_ok(msg)
+        return ok
 
 class HotState(State):
     """
@@ -824,7 +843,7 @@ class Monitor:
         descending into AndState and OrState compositions.
         """
         for state in states_to_check:
-            if isinstance(state, (AndState, OrState)):
+            if isinstance(state, (AndState, OrState, Sequence)):
                 self._check_hot_states(state.states)
             elif isinstance(state, (HotState, HotNextState)):
                 self.report_end_error(f'terminates in hot state {state}')
@@ -881,7 +900,7 @@ class Monitor:
             hot_marker = " (HOT)" if isinstance(state, HotState) else ""
             result += f"{indent}{state}{hot_marker}\n"
             
-            if isinstance(state, (AndState, OrState)):
+            if isinstance(state, (AndState, OrState, Sequence)):
                 result += self._pretty_format_states(state.states, indent + "  ") + "\n"
             elif isinstance(state, NotState):
                 result += self._pretty_format_states([state.inner], indent + "  ") + "\n"
@@ -909,7 +928,7 @@ class Monitor:
             text += f'    state {state}\n'
             text += f'    event {self.event_count} {event}\n'
         text += f'    {error_state.text}'
-        self.messages.append(Message(text, error_state.data))
+        self.messages.append(Message(text, error_state.data, category='safety_violation'))
         print(text)
 
     def report_transition_information(self, state: State, event: Event, info_state: InfoState):
@@ -920,10 +939,16 @@ class Monitor:
         :param event: the event that causes the transition to be taken.
         :param info_state: the info state.
         """
-        text = f'--- message from {self.get_monitor_name()}:\n'
-        text += f'    {info_state.text}'
-        self.messages.append(Message(text, info_state.data))
-        print(text)
+        message = f'--- info transition in {self.get_monitor_name()}:\n    state {state}\n    event {self.event_count} {event}\n    {info_state.text}'
+        self.messages.append(Message(message, info_state.data, category='info'))
+        print(f"{message}")
+        sys.stdout.flush()
+
+    def report_ok(self, msg: str):
+        message = f'{COLOR_GREEN}--- ok: {msg}{COLOR_RESET}'
+        self.messages.append(Message(message, None, category='ok'))
+        print(message)
+        sys.stdout.flush()
 
     def report_end_error(self, text: str, obj: object = None):
         """
@@ -1037,7 +1062,8 @@ class Monitor:
         Returns True if errors have been found.
         :return: True if errors have been found.
         """
-        return self.get_message_count() > 0
+        error_categories = {'safety_violation', 'hot_state_termination'}
+        return any(msg.category in error_categories for msg in self.get_all_messages())
 
     def print_summary(self):
         """
@@ -1158,3 +1184,36 @@ class NotState(State):
             return [NotState(remaining_states[0])]
         else:
             return [NotState(AndState(*remaining_states))]
+
+
+class Sequence(State):
+    """
+    A state that represents two sub-states occurring in sequence.
+    Succeeds if the first sub-state succeeds, and then the second sub-state succeeds.
+    """
+
+    def __init__(self, first: State, second: State):
+        super().__init__()
+        self.first = first
+        self.second = second
+        self.states = [self.first, self.second]
+
+    def __str__(self) -> str:
+        return f"({self.first} >> {self.second})"
+
+    def eval(self, event: Event) -> List[State]:
+        results = self.first.eval(event)
+
+        if any(isinstance(r, ErrorState) for r in results):
+            return results
+
+        remaining_states = [r for r in results if not isinstance(r, OkState)]
+        if not remaining_states:
+            return [self.second]
+
+        if len(remaining_states) == 1:
+            new_first = remaining_states[0]
+        else:
+            new_first = AndState(*remaining_states)
+            
+        return [Sequence(new_first, self.second)]
