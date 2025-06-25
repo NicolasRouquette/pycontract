@@ -52,24 +52,6 @@ python -m pip install "xlrd"
 pip install -e .
 ```
 
-### ROS2 Installation
-
-To install with ROS2 support, you can either:
-
-1. Use pip (for development):
-```bash
-pip install -e .[ros2]
-```
-
-2. Or use colcon (recommended for ROS2 integration):
-```bash
-# In your ROS2 workspace
-source /opt/ros/<ros2-distro>/setup.bash or setup.zsh
-# Create a workspace if needed
-colcon build --packages-select pycontract
-source install/setup.bash
-```
-
 ## Test Installation
 
 ```

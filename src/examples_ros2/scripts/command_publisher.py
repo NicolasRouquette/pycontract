@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from examples_ros2.msg import Command
@@ -5,13 +6,17 @@ import argparse
 import time
 
 class CommandPublisher(Node):
-    def __init__(self):
+    publisher_: rclpy.publisher.Publisher
+    timer: rclpy.timer.Timer
+    id: int
+
+    def __init__(self) -> None:
         super().__init__('command_publisher')
         self.publisher_ = self.create_publisher(Command, 'commands', 10)
         self.timer = self.create_timer(1.0, self.timer_callback)
         self.id = 0
-        
-    def timer_callback(self):
+
+    def timer_callback(self) -> None:
         msg = Command()
         msg.cmd = f'cmd_{self.id}'
         msg.id = self.id
@@ -20,7 +25,7 @@ class CommandPublisher(Node):
         self.get_logger().info(f'Sending command: {msg.cmd} with id: {msg.id}')
         self.id += 1
 
-def main():
+def main() -> None:
     rclpy.init()
     node = CommandPublisher()
     try:

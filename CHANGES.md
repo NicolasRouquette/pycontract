@@ -1,5 +1,13 @@
 # Change Log
 
+## 2025-06-25
+
+### Build Fixes
+* Added proper shebang (`#!/usr/bin/env python3`) to `command_publisher.py`, `status_publisher.py`, and `ros2_monitor.py` in `src/examples_ros2/scripts/`.
+* Added `<member_of_group>rosidl_interface_packages</member_of_group>` to `src/examples_ros2/package.xml` to fix `colcon build` error requiring this entry for packages installing interfaces.
+* Build error about missing `ament_package` (ModuleNotFoundError) was resolved by installing `ros-jazzy-desktop-full` (not by installing `python3-ament-package` or using pip).
+
+
 ## 2025-06-24
 
 ### Project restructuring

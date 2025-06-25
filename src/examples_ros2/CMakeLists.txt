@@ -10,6 +10,12 @@ find_package(rosidl_default_generators REQUIRED)
 set(msg_files
   "msg/Command.msg"
   "msg/Status.msg"
+  "msg/A.msg"
+  "msg/B.msg"
+  "msg/C.msg"
+  "msg/D.msg"
+  "msg/E.msg"
+  "msg/F.msg"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -21,6 +27,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 install(PROGRAMS
   scripts/command_publisher.py
   scripts/status_publisher.py
+  scripts/run_monitor.py
   scripts/ros2_monitor.py
   DESTINATION lib/${PROJECT_NAME}
 )
