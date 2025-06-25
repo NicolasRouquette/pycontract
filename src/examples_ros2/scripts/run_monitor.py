@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import pycontract
 import rclpy
+from dataclasses import field
 from rclpy.node import Node
 from examples_ros2.msg import A, B, C, D, E, F, End
 from typing import Any
@@ -95,12 +96,8 @@ class OrMonitor(pycontract.Monitor):
 
     @pycontract.data
     class Expect_B_NotD_C(pycontract.HotState):
+        logger: Any = field(repr=False, compare=False)
         x: int
-
-        def __init__(self, logger, x):
-            super().__init__()
-            self.logger = logger
-            self.x = x
 
         def transition(self, event: Any):
             if isinstance(event, B) and event.x == self.x:
@@ -110,12 +107,8 @@ class OrMonitor(pycontract.Monitor):
 
     @pycontract.data
     class Expect_NotD_C(pycontract.HotState):
+        logger: Any = field(repr=False, compare=False)
         x: int
-
-        def __init__(self, logger, x):
-            super().__init__()
-            self.logger = logger
-            self.x = x
 
         def transition(self, event):
             if isinstance(event, D) and event.x == self.x:
@@ -127,12 +120,8 @@ class OrMonitor(pycontract.Monitor):
 
     @pycontract.data
     class Expect_D_NotF_E(pycontract.HotState):
+        logger: Any = field(repr=False, compare=False)
         x: int
-
-        def __init__(self, logger, x):
-            super().__init__()
-            self.logger = logger
-            self.x = x
 
         def transition(self, event: Any):
             if isinstance(event, D) and event.x == self.x:
@@ -142,12 +131,8 @@ class OrMonitor(pycontract.Monitor):
 
     @pycontract.data
     class Expect_NotF_E(pycontract.HotState):
+        logger: Any = field(repr=False, compare=False)
         x: int
-
-        def __init__(self, logger, x):
-            super().__init__()
-            self.logger = logger
-            self.x = x
 
         def transition(self, event: Any):
             if isinstance(event, F) and event.x == self.x:

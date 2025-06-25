@@ -2,6 +2,19 @@
 
 ## 2025-06-25
 
+### User Updates
+* Added `End.msg` and updated `CMakeLists.txt` to generate the new message.
+* Added `launch/` directory installation rule and created `launch/test_monitor.launch.py` to automate multi-node test.
+* Added `scripts/scenario_pub.py` to replay the A–B–C–End scenario.
+* Enhanced `scripts/run_monitor.py`:
+  * Subscribes to `/end` topic to shut down automatically.
+  * Injects `logger` into monitor states; replaced direct `print` with ROS logging.
+  * Converted inner state classes to `@pycontract.data` dataclasses eliminating manual `__init__`.
+* Updated `README-ROS2.md`:
+  * Replaced manual node instructions with single launch command.
+  * Added Mermaid sequence diagram illustrating test interactions.
+
+
 ### Build Fixes
 * Added proper shebang (`#!/usr/bin/env python3`) to `command_publisher.py`, `status_publisher.py`, and `ros2_monitor.py` in `src/examples_ros2/scripts/`.
 * Added `<member_of_group>rosidl_interface_packages</member_of_group>` to `src/examples_ros2/package.xml` to fix `colcon build` error requiring this entry for packages installing interfaces.
