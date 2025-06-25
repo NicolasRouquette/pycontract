@@ -8,6 +8,7 @@ find_package(rosidl_default_generators REQUIRED)
 
 # Message files
 set(msg_files
+  "msg/End.msg"
   "msg/Command.msg"
   "msg/Status.msg"
   "msg/A.msg"
@@ -29,7 +30,14 @@ install(PROGRAMS
   scripts/status_publisher.py
   scripts/run_monitor.py
   scripts/ros2_monitor.py
+  scripts/scenario_pub.py
   DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install launch files
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
 )
 
 # Install resource marker and package.xml
