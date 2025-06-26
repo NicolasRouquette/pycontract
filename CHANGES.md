@@ -2,6 +2,18 @@
 
 ## 2025-06-25
 
+### Build Fixes
+* Added `empy` and `catkin_pkg` to requirements to satisfy ROS message generation and package parsing.
+
+### Fixes
+* `enable_pattern_matching_for_ros2_package` now scans the message module for classes with `_fields_and_field_types` instead of relying on missing `__all__`, preventing `AttributeError` on launch.
+
+### Features
+* Enhanced `src/examples_ros2/scripts/run_monitor.py.enable_pattern_matching` to derive `__match_args__` from the ROS-generated `_fields_and_field_types`, enabling clean structural pattern matching without internal slots.
+
+### Dependency Fixes
+* Added `PyYAML` to `src/pycontract/requirements.txt` to satisfy ROS 2's `rclpy` dependency.
+
 ### Documentation
 * Updated `README.md` installation instructions to match new `src/` layout:
   * Dependencies are now installed via `pip install -r src/pycontract/requirements.txt`.

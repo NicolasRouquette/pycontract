@@ -3,14 +3,50 @@ import pycontract
 import rclpy
 from dataclasses import field
 from rclpy.node import Node
+
 from examples_ros2.msg import A, B, C, D, E, F, End
 from typing import Any
+
+import importlib
+from rosidl_runtime_py.utilities import get_message
+from rosidl_runtime_py.set_message import set_message_fields
+
+def enable_pattern_matching_for_ros2_message(msg_cls):
+    """Add __match_args__ so PEP-634 pattern matching works on ROS 2 messages.
+
+    We take the field names from the generator-provided ``_fields_and_field_types``
+    dict because it already lists the *public* message fields (without leading
+    underscores) and omits internal attributes like ``_serialization_padding``.
+    If that attribute is missing we fall back to stripping leading underscores
+    from ``__slots__``.
+    """
+    if hasattr(msg_cls, "_fields_and_field_types"):
+        msg_cls.__match_args__ = tuple(msg_cls._fields_and_field_types.keys())
+    else:
+        # Fallback – strip leading underscore that ROS puts in __slots__ entries
+        msg_cls.__match_args__ = tuple(s.lstrip("_") for s in getattr(msg_cls, "__slots__", ()))
+    return msg_cls
+
+def enable_pattern_matching_for_ros2_package(pkg_name):
+    """Enable pattern matching for every message class in the given ROS-2 package.
+
+    We cannot rely on ``examples_ros2.msg.__all__`` because the generator does
+    not create that attribute. Instead, we scan the module attributes and pick
+    any class that has the marker ``_fields_and_field_types`` (present on all
+    generated message classes).
+    """
+    msg_mod = importlib.import_module(pkg_name + '.msg')
+    for attr_name in dir(msg_mod):
+        cls = getattr(msg_mod, attr_name)
+        if isinstance(cls, type) and hasattr(cls, '_fields_and_field_types'):
+            enable_pattern_matching_for_ros2_message(cls)
 
 # Assume the OrMonitor and contract logic is similar to examples/run_monitor.py, but events are now ROS2 messages
 
 class ROS2RunMonitorNode(Node):
     def __init__(self) -> None:
         super().__init__('ros2_run_monitor')
+        enable_pattern_matching_for_ros2_package('examples_ros2')
         self.monitor = OrMonitor(self.get_logger())
         # Subscribe to all six event topics
         self.a_sub = self.create_subscription(A, 'event_a', self.a_callback, 10)
@@ -63,47 +99,26 @@ class OrMonitor(pycontract.Monitor):
         self.logger = logger
 
     """Example monitor using ROS2 messages as events."""
-    def transition(self, event: Any) -> object:
-        # You can use isinstance(event, A) etc. to branch
-        if isinstance(event, A):
-            # Handle A event
-            self.logger.info(f"Processing A: {event}")
-            return pycontract.OrState(
-                OrMonitor.Expect_B_NotD_C(self.logger, event.x),
-                OrMonitor.Expect_D_NotF_E(self.logger, event.x)
-            )
-        if isinstance(event, B):
-            # Handle B event
-            self.logger.info(f"Processing B: {event}")
-            return pycontract.ok
-        if isinstance(event, C):
-            # Handle C event
-            self.logger.info(f"Processing C: {event}")
-            return pycontract.ok
-        if isinstance(event, D):
-            # Handle D event
-            self.logger.info(f"Processing D: {event}")
-            return ok
-        if isinstance(event, E):
-            # Handle E event
-            self.logger.info(f"Processing E: {event}")
-            return pycontract.ok
-        if isinstance(event, F):
-            # Handle F event
-            self.logger.info(f"Processing F: {event}")
-            return pycontract.ok
-        return pycontract.error('Unknown event type')
+    
+    def transition(self, event):
+        match event:
+            case A(x):
+                self.logger.info(f"Processing A: {event}")
+                return pycontract.OrState(
+                    OrMonitor.Expect_B_NotD_C(self.logger, x),
+                    OrMonitor.Expect_D_NotF_E(self.logger, x)
+                )
 
     @pycontract.data
     class Expect_B_NotD_C(pycontract.HotState):
         logger: Any = field(repr=False, compare=False)
         x: int
 
-        def transition(self, event: Any):
-            if isinstance(event, B) and event.x == self.x:
-                self.logger.info(f"Processing B: {event}")
-                return OrMonitor.Expect_NotD_C(self.logger, self.x)
-            return pycontract.error(f"Event {event} is not allowed in this branch")
+        def transition(self, event):
+            match event:
+                case B(self.x):
+                    self.logger.info(f"Processing B: {event}")
+                    return OrMonitor.Expect_NotD_C(self.logger, self.x)
 
     @pycontract.data
     class Expect_NotD_C(pycontract.HotState):
@@ -111,12 +126,13 @@ class OrMonitor(pycontract.Monitor):
         x: int
 
         def transition(self, event):
-            if isinstance(event, D) and event.x == self.x:
-                self.logger.info(f"Processing D: {event}")
-                return pycontract.error("D is not allowed in this branch")
-            if isinstance(event, C) and event.x == self.x:
-                self.logger.info(f"Processing C: {event}")
-                return pycontract.ok
+            match event:
+                case D(self.x):
+                    self.logger.info(f"Processing D: {event}")
+                    return pycontract.error("D is not allowed in this branch")
+                case C(self.x):
+                    self.logger.info(f"Processing C: {event}")
+                    return pycontract.ok
 
     @pycontract.data
     class Expect_D_NotF_E(pycontract.HotState):
@@ -124,10 +140,10 @@ class OrMonitor(pycontract.Monitor):
         x: int
 
         def transition(self, event: Any):
-            if isinstance(event, D) and event.x == self.x:
-                self.logger.info(f"Processing D: {event}")
-                return OrMonitor.Expect_NotF_E(self.logger, self.x)
-            return pycontract.error(f"Event {event} is not allowed in this branch")
+            match event:
+                case D(self.x):
+                    self.logger.info(f"Processing D: {event}")
+                    return OrMonitor.Expect_NotF_E(self.logger, self.x)
 
     @pycontract.data
     class Expect_NotF_E(pycontract.HotState):
@@ -135,13 +151,13 @@ class OrMonitor(pycontract.Monitor):
         x: int
 
         def transition(self, event: Any):
-            if isinstance(event, F) and event.x == self.x:
-                self.logger.info(f"Processing F: {event}")
-                return pycontract.error("F is not allowed in this branch")
-            if isinstance(event, E) and event.x == self.x:
-                self.logger.info(f"Processing E: {event}")
-                return pycontract.ok
-            return pycontract.error(f"Event {event} is not allowed in this branch")
+            match event:
+                case F(self.x):
+                    self.logger.info(f"Processing F: {event}")
+                    return pycontract.error("F is not allowed in this branch")
+                case E(self.x):
+                    self.logger.info(f"Processing E: {event}")
+                    return pycontract.ok
 
 def main() -> None:
     rclpy.init()
