@@ -4,7 +4,6 @@
   <version>0.1.0</version>
   <description>Runtime verification and contract monitoring</description>
   <maintainer email="havelund@gmail.com">Klaus Havelund</maintainer>
-  <maintainer email="nicolas.rouquette@me.com">Nicolas Rouquette</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_python</buildtool_depend>

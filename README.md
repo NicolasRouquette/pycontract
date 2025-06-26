@@ -29,6 +29,9 @@ m.end()
 
 In the following, we shall illustrate the API by going through a collection of examples. All examples can be found in the `test/readme-file` folder.
  
+## ROS2
+
+For monitoring [ROS2](https://docs.ros.org/) messages in PyContract, see [src/pycontract_ros2/README.md](./src/pycontract_ros2/README.md)
 ## Installation 
 
 - Python 3.10 or later: PyContract uses [pattern matching](https://peps.python.org/pep-0636/) that was introduced in Python 3.10. You will therefore need to install Python 3.10 or later.
