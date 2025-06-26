@@ -14,7 +14,7 @@
   <depend>rclpy</depend>
   <exec_depend>rosidl_default_runtime</exec_depend>
   <depend>std_msgs</depend>
-  <depend>pycontract</depend>
+  <depend>pycontract_ros2</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
