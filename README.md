@@ -32,31 +32,31 @@ In the following, we shall illustrate the API by going through a collection of e
 ## Installation 
 
 - Python 3.10 or later: PyContract uses [pattern matching](https://peps.python.org/pep-0636/) that was introduced in Python 3.10. You will therefore need to install Python 3.10 or later.
-- do a `git clone https://github.com/pyrv/pycontract.git` in a directory `DIR`of choice (or download the zip file and unzip). This will create a directory `pycontract` in `DIR`.
-- Set your PYTHONPATH variable to point to pycontract as e.g.:
-```
-export PYTHONPATH=$PYTHONPATH:$DIR/pycontract
+
+- Create a Python virtual environment to install the dependencies:
+
+```shell
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-- Some Python packages may need to be installed on your machine, e.g.:
-
-```
-python -m pip install "pyfiglet"
-python -m pip install "pandas"
-python -m pip install "xlrd"
-```
-
-### Basic Installation
+### Basic Installation (for using the `pycontract` package)
 
 ```bash
-pip install -e .
+pip install -r src/pycontract/requirements.txt
+```
+
+### Editable Installation (contributor setup)
+
+```bash
+pip install -e src/pycontract
 ```
 
 ## Test Installation
 
 ```
-cd $DIR/pycontract/demo
-python demo_using_dictionaries.py
+cd demo
+python3 demo_using_dictionaries.py
 ```
 
 This should yield the following output:

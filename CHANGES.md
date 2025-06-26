@@ -2,6 +2,12 @@
 
 ## 2025-06-25
 
+### Documentation
+* Updated `README.md` installation instructions to match new `src/` layout:
+  * Dependencies are now installed via `pip install -r src/pycontract/requirements.txt`.
+  * Editable install is performed with `pip install -e src/pycontract` instead of root-level `pip install -e .`.
+
+
 ### User Updates
 * Added `End.msg` and updated `CMakeLists.txt` to generate the new message.
 * Added `launch/` directory installation rule and created `launch/test_monitor.launch.py` to automate multi-node test.
