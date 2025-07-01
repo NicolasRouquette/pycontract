@@ -15,7 +15,6 @@ setup(
     ],
     install_requires=[
         "pycontract",
-        "rosidl_runtime_py",
     ],
     zip_safe=True,
     maintainer="Nicolas Rouquette",

@@ -19,6 +19,8 @@ sudo dnf install -y --nogpgcheck \
 # 3. Refresh metadata and install Jazzy
 sudo dnf makecache
 sudo dnf install ros-jazzy-desktop     # or ros-jazzy-ros-base, etc.
+sudo dnf install python3-colcon-bundle
+sudo dnf install python3-colcon-zsh    # for ZSH shell users
 ```
 
 ## ROS2 Build
