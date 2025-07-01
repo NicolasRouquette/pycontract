@@ -4,6 +4,8 @@
 
 Make sure ROS2 Jazzy or later is installed.
 
+See: [ROS2 Jazzy installation](https://docs.ros.org/en/jazzy/Installation.html)
+
 ```bash
 # The project repository can be used as a ROS workspace
 source /opt/ros/<ros2-distro>/setup.bash or setup.zsh

@@ -1,5 +1,12 @@
 # Change Log
 
+## 2025-07-01
+
+### Build Fixes
+* Updated `pyproject.toml` `ros2` optional dependency list to include only valid PEP 508 requirement strings (`rosidl_runtime_py`). This removes comment placeholders that caused `pip install -e .` to fail validation.
+* Expanded `README.md` with clear installation instructions for (1) core usage and (2) core + ROS 2 integration.
+
+
 ## 2025-06-25
 
 ### Build Fixes

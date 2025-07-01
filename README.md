@@ -32,7 +32,14 @@ In the following, we shall illustrate the API by going through a collection of e
 ## ROS2
 
 For monitoring [ROS2](https://docs.ros.org/) messages in PyContract, see [src/pycontract_ros2/README.md](./src/pycontract_ros2/README.md)
-## Installation 
+## Installation
+
+There are two typical installation scenarios:
+
+1. **Core PyContract only** – you want to use the monitor DSL in a normal Python program.
+2. **PyContract with ROS 2 integration** – you also need helpers to convert ROS 2 messages into events.
+
+Choose whichever fits your use-case. 
 
 - Python 3.10 or later: PyContract uses [pattern matching](https://peps.python.org/pep-0636/) that was introduced in Python 3.10. You will therefore need to install Python 3.10 or later.
 
@@ -43,16 +50,29 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### Basic Installation (for using the `pycontract` package)
+### 1&nbsp;&nbsp;Core installation (no ROS 2)
+
+Install from PyPI:
 
 ```bash
-pip install -r src/pycontract/requirements.txt
+pip install pycontract
 ```
 
-### Editable Installation (contributor setup)
+or, when working from a checkout of this repository in editable/development mode:
 
 ```bash
-pip install -e src/pycontract
+# inside repo root
+pip install -e .
+```
+
+Both commands install the core package only.
+
+### Core + ROS 2 integration
+
+See [src/pycontract_ros2/README.md](./src/pycontract_ros2/README.md) for step-by-step instructions.
+
+```bash
+pip install -e ".[ros2]"
 ```
 
 ## Test Installation
