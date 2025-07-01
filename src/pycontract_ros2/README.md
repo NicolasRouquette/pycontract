@@ -25,7 +25,8 @@ sudo dnf install ros-jazzy-desktop     # or ros-jazzy-ros-base, etc.
 
 ```bash
 # The project repository can be used as a ROS workspace
-source /opt/ros/<ros2-distro>/setup.bash or setup.zsh
+# Automatically picks the correct script for bash, zsh, fish, …
+source /opt/ros/<ros2-distro>/setup.$(basename $SHELL)
 
 # The list of packages:
 colcon graph
